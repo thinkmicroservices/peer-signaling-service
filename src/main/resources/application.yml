@@ -1,0 +1,20 @@
+## YAML Template.
+---
+logging.level.com.thinkmicroservices: DEBUG
+server:
+   port: 8443
+
+ 
+
+spring.profiles.active: dev,single-node
+
+
+management:
+  endpoints:
+    metrics:
+      sensitive: false
+    web:
+      exposure:
+        include: info,health,prometheus
+        
+management.metrics.tags.application: ${spring.application.name}

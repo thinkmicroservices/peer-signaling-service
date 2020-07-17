@@ -1,0 +1,11 @@
+body {
+  font-family: sans-serif;
+}
+
+video {
+  max-width: 30%;
+  width: 320;
+  /*filter: blur(4px) invert(1) opacity(0.5); */
+  /*filter: hue-rotate(180deg) saturate(200%);*/
+  border: 10px inset #ddd;
+}

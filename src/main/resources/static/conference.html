@@ -1,0 +1,262 @@
+<html>
+
+    <head>
+    <head>
+        <title>WebRTC</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <!--Bootstrap only for styling-->
+    <link rel="stylesheet"  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script
+    src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script
+    src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <!--Bootstrap only for styling-->
+</head>
+<style>
+    .container {
+        background: rgb(148, 144, 144);
+        margin: 50px auto;
+        max-width: 80%;
+        text-align: center;
+        padding: 2%;
+    }
+
+    button {
+        margin: 1em;
+    }
+
+    input {
+        margin-top: 1em;
+    }
+
+    .footer {
+        background: rgb(148, 144, 144);
+        text-align: center;
+        padding: 2%;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+    }
+    video {
+        max-width: 30%;
+        width: 320;
+        /*filter: blur(4px) invert(1) opacity(0.5); */
+        /*filter: hue-rotate(180deg) saturate(200%);*/
+        /* border: 10px inset #ddd; */
+    }
+
+    /*
+        .smallVideo {
+            height: 150px;
+            width: 200px;
+            float: right;
+             
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: -1;
+        }
+    
+    
+        .bigVideo {
+            height: 768px;
+            width: 1024px;
+             
+            position: absolute;
+            left: 10px;
+            top: 0px;
+            z-index: -1;
+        }
+    */
+
+    .controls {
+
+        width: 600px;
+        height: 600px;
+
+        position: absolute;
+        left: 600px;
+        top: 0px;
+        z-index: 10;
+        opacity: 0.75;
+        /* display: flex;
+         flex-direction: column-reverse;
+        */
+
+    }
+    .log-console {
+        background-color: lightblue;
+        width: 90%;
+        height:300px;
+        overflow: scroll;
+
+    }
+    .log-default {
+        color: black;
+        font-weight: normal;
+    }
+    .log-error {
+        color: red;
+        font-weight: bold;
+    }
+
+    .menu {
+        position: absolute;
+        top: 500px;
+    }
+
+
+
+    .remote-video {
+        width: 100%;
+        border: 1px solid black;
+    }
+    .video-wrapper{
+        display:table;
+        width:auto;
+        
+    }
+    
+
+</style>
+
+<body>
+
+
+    <div >
+
+        <div class="controls">
+            <a href="./index.html">Home</a>
+            <h3>ThinkMicroservice RTC Conference</h3>  
+            <input type="text" class="form-control" id="videoUserName" placeholder="Video User Name" ><button type="button" id="registerVideoUserButton" class="btn btn-primary">Register User</button>
+
+         
+            <button type="button" class="btn btn-primary" onclick='getActiveUsers()'>Get Active users</button>
+         
+
+  
+
+            <select id="active-user-list" class="custom-select" multiple>
+                <option selected>Open this select menu</option>
+
+            </select>
+            <div id="log" class="log-console"></div>
+        </div>
+
+
+    </div>
+    <div class='video-container'>
+
+        <!--<video class="smallVideo"  id="remote-view" autoplay playsinline   ></video>-->
+        <video class="bigVideo"  id="local-view" autoplay playsinline   ></video>
+    </div>
+
+
+    <!--WebRTC related code-->
+
+    <div class="container menu">
+
+        <ul class="nav nav-tabs">
+            <li class="active"> <a data-toggle="tab" href="#home">Home</a></li>
+            <li > <a data-toggle="tab" href="#create">Create Meeting</a></li>
+            <li><a data-toggle="tab" href="#join">Join Meeting</a></li>
+            <li><a data-toggle="tab" href="#message">Message</a></li>
+
+        </ul>
+
+        <div class="tab-content">
+            <div id="home" class="tab-pane fade">
+                This page provides a tabs for creating conference rooms, joining a conference room, and messaging
+            </div>
+
+            <div id="create" class="tab-pane fade">
+                <form>
+                    <div class="form-group">
+                        <label for="meetingFacilitator">Facilitator</label>
+                        <input type="text" class="form-control" id="meetingFacilitator" aria-describedby="emailHelp" placeholder="Facilitator Name" readonly>
+                        <small id="emailHelp" class="form-text text-muted">Your name.</small>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" id="generateMeetingRoomButton" class="btn btn-primary">Generate new Meeting Room</button>
+                        <label for="createMeetingRoomName">MeetingRoom</label>
+
+                        <input type="text" class="form-control" id="createMeetingRoomName" placeholder="MeetingRoomName">
+                    </div>
+
+                    <button type="button" id="createMeetingRoomButton" class="btn btn-primary">Create Meeting Room</button>
+                </form>
+            </div>
+
+            <div id="join" class="tab-pane fade">
+                <h3>Join Meeting</h3>
+                <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            </div>
+
+            <div id="message" class="tab-pane fade">
+                <h3>Message</h3>
+                <input id="messageInput" maxlength="60" size="20 type="text" class="form-control"
+                       placeholder="message">
+                       <button type="button" class="btn btn-primary" onclick='sendMessage()'>SEND</button>
+            </div>
+
+        </div>
+
+    </div>
+    <audio id="ringer-audio">
+        <source src="/audio/ring.ogg" type="audio/ogg">
+
+        Your browser does not support the audio element.
+    </audio>
+    <!-- Incoming call modal dialog -->
+    <div id="incoming-call-modal-dialog" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"Incoming Call</h4>
+                </div>
+                <div class="modal-body">
+
+                    <p>Incoming call from <b><span id="incoming-call-name"></b></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="incoming-call-answer-button" class="btn btn-default" data-dismiss="modal">Answer</button>
+                    <button type="button" id="incoming-call-ignore-button" class="btn btn-default" data-dismiss="modal">Ignore</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- outgoing call modal dialog -->
+    <div id="outgoing-call-modal-dialog" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"Incoming Call</h4>
+                </div>
+                <div class="modal-body">
+
+                    <p>Calling <b><span id="outgoing-call-name"></span></b></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="outgoing-call-initiate-button" class="btn btn-default" data-dismiss="modal">Call</button>
+                    <button type="button" id="outgoing-call-cancel-button" class="btn btn-default" data-dismiss="modal">Hangup</button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="./js/conference.js"></script>
+
+</body>
+
+</html>
