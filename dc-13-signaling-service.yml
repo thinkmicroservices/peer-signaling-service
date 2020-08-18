@@ -575,6 +575,38 @@ services:
     #    fluentd-address: localhost:24224
     #    tag:  telemetry.svc
 
+
+  ###################
+  # feature service #
+  ###################
+
+  feature-service:
+    image: thinkmicroservices/feature-service:latest
+    restart: on-failure:5
+    environment: 
+      - spring.main.banner-mode="off"
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka
+      - spring.cloud.config.uri=http://config-service:8888
+      - logging.level.com.thinkmicroservices=DEBUG
+      - logging.level.org.springframework=DEBUG
+      - spring.profiles.active=dev,swagger
+       
+    depends_on:
+      - config-service
+      - discovery-service
+      
+    networks:
+      - spring_ri_network
+    ports:
+      - 3550:8080
+    links:
+      - fluentd
+    #logging:
+    #  driver: "fluentd"
+    #  options:
+    #    fluentd-address: localhost:24224
+    #    tag:  administration.svc
+
   ############################
   # peer signaling service #
   ############################
