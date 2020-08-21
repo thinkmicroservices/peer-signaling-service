@@ -20,14 +20,16 @@ import org.springframework.web.socket.CloseStatus;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.socket.SubProtocolCapable;
 
 @Component
 @Slf4j
-public class PeerSocketHandler extends TextWebSocketHandler {
+public class PeerSocketHandler extends TextWebSocketHandler implements SubProtocolCapable{
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -41,6 +43,9 @@ public class PeerSocketHandler extends TextWebSocketHandler {
     private static final String SUCCESS = "success";
     private static final String FAILURE = "failure";
 
+    private static final String AUTHORIZATION_SEC_WEB_SOCKET_PROTOCOL = "authorization";
+
+    
     @Autowired
     private SignalingDataService signalingDataService;
     
@@ -551,4 +556,15 @@ public class PeerSocketHandler extends TextWebSocketHandler {
                 .register(meterRegistry);
     }
 
+    /*
+    This method implements the <b>SubProtocolCapable</b? interface,
+    to provide a list of all supported sec-websocket-protocol protocols.
+    Currently, the class only supports the custom 'authorization' protocol
+    
+    */
+    @Override
+    public List<String> getSubProtocols() {
+        
+        return Arrays.asList(AUTHORIZATION_SEC_WEB_SOCKET_PROTOCOL);    }
+    
 }
