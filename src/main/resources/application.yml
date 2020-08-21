@@ -1,5 +1,4 @@
-## YAML Template.
----
+jwt.secret: 7h1nkm1cr053rv1c35
 logging.level.com.thinkmicroservices: DEBUG
 server:
    port: 8443
